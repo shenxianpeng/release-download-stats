@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: stats
+        uses: ./
+        with:
+          # A public repository with many releases; nothing is pushed.
+          repository: cpp-linter/clang-tools-static-binaries
+          exclude: '(^SHA512SUMS$|\.sha512sum$|\.json$|^LICENSE\.TXT$|\.txt$)'
+          group: '-(?P<major>\d+)(?:\.\d+)*_(?P<platform>[a-z0-9]+(?:-[a-z0-9]+)+)'
+          publish: 'false'
+      - shell: bash
+        env:
+          TOTAL: ${{ steps.stats.outputs.total }}
+        run: |
+          test "$TOTAL" -gt 0
+          cat "$RUNNER_TEMP/release-download-stats/stats.json"

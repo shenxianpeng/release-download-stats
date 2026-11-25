@@ -1,0 +1,77 @@
+name: Release download stats
+description: Record the download counts of your GitHub releases every day, so you can see the trend that GitHub does not keep.
+author: Xianpeng Shen
+branding:
+  icon: download
+  color: blue
+
+inputs:
+  repository:
+    description: Repository whose releases are counted and where the branch is kept.
+    default: ${{ github.repository }}
+  exclude:
+    description: Regular expression of file names not to count, such as checksums.
+    default: '(^SHA(256|512)SUMS$|\.(sha256|sha512|sig|asc|pem)$)'
+  group:
+    description: >-
+      Regular expression with named groups, such as
+      '-(?P<version>\d+)_(?P<platform>[a-z0-9-]+)$'. stats.json then counts the
+      downloads per value of each group.
+    default: ''
+  branch:
+    description: Branch that stats.json and history.csv are committed to; it is created on the first run.
+    default: download-stats
+  publish:
+    description: Commit to the branch. Set to 'false' to only count, for example on pull requests.
+    default: 'true'
+  token:
+    description: "Token that reads the releases and pushes the branch (needs `contents: write` to publish)."
+    default: ${{ github.token }}
+
+outputs:
+  total:
+    description: Downloads of all releases.
+    value: ${{ steps.stats.outputs.total }}
+  total-short:
+    description: The same, rounded, such as 519k.
+    value: ${{ steps.stats.outputs.total-short }}
+
+runs:
+  using: composite
+  steps:
+    - id: stats
+      shell: bash
+      env:
+        REPOSITORY: ${{ inputs.repository }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+        EXCLUDE: ${{ inputs.exclude }}
+        GROUP: ${{ inputs.group }}
+        BRANCH: ${{ inputs.branch }}
+        PUBLISH: ${{ inputs.publish }}
+      run: |
+        dir="$RUNNER_TEMP/release-download-stats"
+        rm -rf "$dir" && git init -q "$dir" && cd "$dir"
+        auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
+        git config "http.$GITHUB_SERVER_URL/.extraheader" "$auth"
+        git remote add origin "$GITHUB_SERVER_URL/$REPOSITORY.git"
+        # Only a branch that does not exist yet starts a new history; any
+        # other failure stops here, so the history is never replaced.
+        status=0
+        git ls-remote --exit-code --heads origin "refs/heads/$BRANCH" > /dev/null || status=$?
+        if [[ $status == 0 ]]; then
+          git fetch -q --depth=1 origin "refs/heads/$BRANCH"
+          git checkout -q -B "$BRANCH" FETCH_HEAD
+        elif [[ $status == 2 ]]; then
+          git checkout -q --orphan "$BRANCH"
+        else
+          exit "$status"
+        fi
+        "$(command -v python3 || command -v python)" "$GITHUB_ACTION_PATH/stats.py" .
+        git add stats.json history.csv
+        if [[ $PUBLISH != true ]] || git diff --cached --quiet; then
+          exit 0
+        fi
+        git -c user.name="github-actions[bot]" \
+          -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+          commit -q -m "Download counts of $(date -u +%F)"
+        git push -q origin "HEAD:refs/heads/$BRANCH"
