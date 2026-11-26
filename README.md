@@ -52,12 +52,13 @@ jobs:
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `repository` | the current one | Repository whose releases are counted and where the branch is kept. |
+| `repository` | the current one | Repository whose releases are counted. |
+| `stats-repository` | `repository` | Repository that the branch is kept in (see [below](#keeping-the-numbers-in-another-repository)). |
 | `exclude` | checksums and signatures | Regular expression of file names not to count. |
 | `group` | none | Regular expression with named groups. Each group counts the downloads per value it matched (see below). |
-| `branch` | `download-stats` | Branch that the files are committed to. It is created on the first run. |
+| `branch` | `download-stats` | Branch of `stats-repository` that the files are committed to. It is created on the first run. |
 | `publish` | `true` | Set to `false` to only count, for example in pull requests. |
-| `token` | `github.token` | Token that reads the releases and pushes the branch. |
+| `token` | `github.token` | Token that reads the releases and pushes the branch to `stats-repository`. |
 
 Outputs: `total` (for example `519169`) and `total-short` (`519k`). The job summary shows the total and the groups.
 
@@ -87,9 +88,23 @@ adds the downloads per version and per platform to `stats.json`:
 }
 ```
 
+## Keeping the numbers in another repository
+
+By default the branch is kept in the repository whose releases are counted. To count the releases of one repository and keep the numbers in another, for example to collect the numbers of several projects in one place, set `stats-repository`:
+
+```yaml
+      - uses: shenxianpeng/release-download-stats@v1
+        with:
+          repository: OWNER/PROJECT
+          stats-repository: ${{ github.repository }}
+          branch: download-stats-PROJECT
+```
+
+Run it in the workflow of the repository that keeps the numbers: the token of the run can push there and read the releases of any public repository. For a private `repository`, or to push to a repository other than the current one, pass a `token` that may do both.
+
 ## Showing the numbers
 
-The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page. Replace `OWNER/REPO` below with your repository; the branch is `download-stats` unless you changed `branch`.
+The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page. Replace `OWNER/REPO` below with the repository that keeps the branch (`stats-repository`); the branch is `download-stats` unless you changed `branch`.
 
 ### Badge
 
