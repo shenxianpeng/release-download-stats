@@ -1,0 +1,31 @@
+name: Download stats
+
+# This action counting its own downloads would always find 0: an action is
+# used by `uses:`, not downloaded. So it counts a repository with release
+# files and keeps the numbers here, for the live badges in the README.
+
+on:
+  schedule:
+    - cron: '20 5 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: download-stats
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./
+        with:
+          repository: cpp-linter/clang-tools-static-binaries
+          stats-repository: ${{ github.repository }}
+          exclude: '(^SHA512SUMS$|\.sha512sum$|\.json$|^LICENSE\.TXT$|\.txt$)'
+          group: '-(?P<version>\d+)(?:\.\d+)*_(?P<platform>[a-z0-9]+(?:-[a-z0-9]+)+)'
