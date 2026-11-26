@@ -1,6 +1,18 @@
-# Release download stats
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/banner-light.svg">
+  <img src="docs/banner-light.svg" alt="release-download-stats — Record the download counts of your GitHub releases every day" width="100%" />
+</picture>
+
+[![Test](https://github.com/shenxianpeng/release-download-stats/actions/workflows/test.yml/badge.svg)](https://github.com/shenxianpeng/release-download-stats/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/shenxianpeng/release-download-stats)](https://github.com/shenxianpeng/release-download-stats/releases)
+[![License](https://img.shields.io/github/license/shenxianpeng/release-download-stats)](LICENSE)
 
 GitHub counts how often each release file is downloaded, but keeps only the running total. This action records the counts of every release once a day, so you can see how they grow.
+
+</div>
 
 Each run commits two files to a branch of your repository (`download-stats` by default):
 
@@ -10,6 +22,9 @@ Each run commits two files to a branch of your repository (`download-stats` by d
 It needs nothing but the token of the workflow run: a short Python script that uses only the standard library, no extra tools or services.
 
 ## Usage
+
+> [!TIP]
+> `@v1` always points to the latest `v1.x.y` release. Pin an exact version (for example `@v1.0.0`) or a commit SHA if you prefer.
 
 ```yaml
 name: Download stats
@@ -74,15 +89,40 @@ adds the downloads per version and per platform to `stats.json`:
 
 ## Showing the numbers
 
-The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page.
+The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page. Replace `OWNER/REPO` below with your repository; the branch is `download-stats` unless you changed `branch`.
 
-A badge with [shields.io](https://shields.io/badges/dynamic-json-badge):
+### Badge
+
+A [dynamic JSON badge](https://shields.io/badges/dynamic-json-badge) from shields.io reads `stats.json` and updates by itself after every run:
+
+| Badge in your README | `query` |
+| --- | --- |
+| ![downloads: 519k](https://img.shields.io/badge/downloads-519k-blue) | `$.total_short` |
+| ![downloads: 519169](https://img.shields.io/badge/downloads-519169-blue) | `$.total` |
+| ![linux-amd64: 272361](https://img.shields.io/badge/linux--amd64-272361-blue) | `$.groups.platform["linux-amd64"]` (one value of a [group](#groups)) |
+| ![downloads: 519k](https://img.shields.io/badge/downloads-519k-blue?style=for-the-badge&logo=github) | `$.total_short`, with `&style=for-the-badge&logo=github` |
+
+<sub>The numbers above are an example; your badge shows your own.</sub>
+
+The first one, ready to copy:
 
 ```markdown
-![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOWNER%2FREPO%2Fdownload-stats%2Fstats.json&query=%24.total_short&label=downloads)
+[![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOWNER%2FREPO%2Fdownload-stats%2Fstats.json&query=%24.total_short&label=downloads)](https://github.com/OWNER/REPO/releases)
 ```
 
-A web page can `fetch()` the same `stats.json`, or `history.csv` for a chart.
+For another row, change `query` (URL-encoded) and `label`. Every [shields.io style](https://shields.io/badges/dynamic-json-badge) works too: `color`, `style`, `logo`.
+
+### Chart
+
+`history.csv` has one row per day:
+
+```csv
+date,total
+2026-11-24,517802
+2026-11-25,519169
+```
+
+A web page can `fetch()` it, or `stats.json`, and draw a chart with any library. The difference between two rows is the downloads of that day.
 
 ## Notes
 

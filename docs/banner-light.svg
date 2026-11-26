@@ -1,0 +1,83 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="release-download-stats — Record the download counts of your GitHub releases every day">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F0F4F9"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="80" y1="0" x2="310" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0969DA"/>
+      <stop offset="1" stop-color="#1A7F37"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="112" x2="0" y2="226" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0969DA" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#0969DA" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glowBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#0969DA" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#0969DA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowGreen" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#1A7F37" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#1A7F37" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame">
+      <rect width="1280" height="320" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1280" height="320" fill="url(#bg)"/>
+    <circle cx="1120" cy="20" r="320" fill="url(#glowBlue)"/>
+    <circle cx="180" cy="330" r="300" fill="url(#glowGreen)"/>
+
+    <!-- left: wordmark -->
+    <text x="80" y="96" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="3.5" fill="#0969DA">GITHUB RELEASE DOWNLOAD TRACKER</text>
+    <text x="80" y="154" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="42" font-weight="700"><tspan fill="#1F2328">release-</tspan><tspan fill="#0969DA">download</tspan><tspan fill="#1F2328">-stats</tspan></text>
+    <rect x="80" y="174" width="230" height="3" rx="1.5" fill="url(#rule)"/>
+
+    <text x="80" y="212" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#57606A">GitHub keeps only the running total. This action</text>
+    <text x="80" y="236" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#57606A">records it every day, so you can see the trend.</text>
+
+    <g font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="500">
+      <rect x="80" y="258" width="108" height="26" rx="13" fill="#0969DA" fill-opacity="0.05" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="134" y="275" text-anchor="middle" fill="#24292F">GitHub Action</text>
+      <rect x="200" y="258" width="136" height="26" rx="13" fill="#0969DA" fill-opacity="0.05" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="268" y="275" text-anchor="middle" fill="#24292F">Python stdlib only</text>
+      <rect x="348" y="258" width="132" height="26" rx="13" fill="#0969DA" fill-opacity="0.05" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="414" y="275" text-anchor="middle" fill="#24292F">No extra services</text>
+      <rect x="492" y="258" width="128" height="26" rx="13" fill="#0969DA" fill-opacity="0.05" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="556" y="275" text-anchor="middle" fill="#24292F">Badge-ready JSON</text>
+    </g>
+
+    <!-- right: history card -->
+    <rect x="714" y="44" width="506" height="232" rx="14" fill="#FFFFFF" stroke="#D0D7DE"/>
+    <text x="738" y="80" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="13"><tspan fill="#9A6700">$</tspan><tspan fill="#424A53" dx="8">cat download-stats/history.csv</tspan></text>
+
+    <!-- shields.io-style badge -->
+    <g font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="11">
+      <rect x="1068" y="64" width="70" height="20" rx="3" fill="#555"/>
+      <rect x="1134" y="64" width="62" height="20" rx="3" fill="#007EC6"/>
+      <rect x="1134" y="64" width="6" height="20" fill="#007EC6"/>
+      <text x="1103" y="78" text-anchor="middle" fill="#FFF">downloads</text>
+      <text x="1165" y="78" text-anchor="middle" fill="#FFF">519k</text>
+    </g>
+
+    <g stroke="#1B1F24" stroke-opacity="0.07">
+      <line x1="742" y1="112.0" x2="1190" y2="112.0"/>
+      <line x1="742" y1="169.0" x2="1190" y2="169.0"/>
+      <line x1="742" y1="226.0" x2="1190" y2="226.0"/>
+    </g>
+    <path d="M742.0 214.6 L758.6 210.6 L775.2 210.3 L791.8 208.7 L808.4 203.3 L825.0 199.7 L841.6 198.9 L858.1 195.5 L874.7 190.1 L891.3 187.4 L907.9 185.7 L924.5 181.2 L941.1 176.4 L957.7 174.0 L974.3 171.2 L990.9 166.3 L1007.5 162.2 L1024.1 159.6 L1040.7 155.9 L1057.3 151.1 L1073.9 147.5 L1090.4 144.3 L1107.0 140.1 L1123.6 135.8 L1140.2 132.2 L1156.8 128.4 L1173.4 124.2 L1190.0 120.2 L1190 226 L742 226 Z" fill="url(#area)"/>
+    <path d="M742.0 214.6 L758.6 210.6 L775.2 210.3 L791.8 208.7 L808.4 203.3 L825.0 199.7 L841.6 198.9 L858.1 195.5 L874.7 190.1 L891.3 187.4 L907.9 185.7 L924.5 181.2 L941.1 176.4 L957.7 174.0 L974.3 171.2 L990.9 166.3 L1007.5 162.2 L1024.1 159.6 L1040.7 155.9 L1057.3 151.1 L1073.9 147.5 L1090.4 144.3 L1107.0 140.1 L1123.6 135.8 L1140.2 132.2 L1156.8 128.4 L1173.4 124.2 L1190.0 120.2" stroke="#0969DA" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="1190.0" cy="120.2" r="5" fill="#FFFFFF" stroke="#0969DA" stroke-width="2.5"/>
+    <text x="1180.0" y="142.2" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="600" text-anchor="end" fill="#1F2328">519,169</text>
+
+    <g font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10" fill="#6E7781">
+      <text x="742.0" y="244" text-anchor="start">Oct 29</text>
+      <text x="858.1" y="244" text-anchor="middle">Nov 5</text>
+      <text x="974.3" y="244" text-anchor="middle">Nov 12</text>
+      <text x="1090.4" y="244" text-anchor="middle">Nov 19</text>
+      <text x="1190.0" y="244" text-anchor="end">Nov 25</text>
+    </g>
+  </g>
+</svg>
