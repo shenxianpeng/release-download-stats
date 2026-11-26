@@ -33,3 +33,21 @@ jobs:
         run: |
           test "$TOTAL" -gt 0
           cat "$RUNNER_TEMP/release-download-stats/stats.json"
+          # Without stats-repository the branch is looked up in `repository`.
+          test "$(git -C "$RUNNER_TEMP/release-download-stats" remote get-url origin)" \
+            = "$GITHUB_SERVER_URL/cpp-linter/clang-tools-static-binaries.git"
+      # Count the releases of one repository, keep the branch in this one.
+      - id: other
+        uses: ./
+        with:
+          repository: cpp-linter/clang-tools-static-binaries
+          stats-repository: ${{ github.repository }}
+          publish: 'false'
+      - shell: bash
+        env:
+          TOTAL: ${{ steps.other.outputs.total }}
+        run: |
+          test "$TOTAL" -gt 0
+          dir="$RUNNER_TEMP/release-download-stats"
+          test "$(git -C "$dir" remote get-url origin)" = "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          grep -q '"repository": "cpp-linter/clang-tools-static-binaries"' "$dir/stats.json"

@@ -7,8 +7,11 @@ branding:
 
 inputs:
   repository:
-    description: Repository whose releases are counted and where the branch is kept.
+    description: Repository whose releases are counted.
     default: ${{ github.repository }}
+  stats-repository:
+    description: Repository that the branch is kept in. Defaults to `repository`.
+    default: ''
   exclude:
     description: Regular expression of file names not to count, such as checksums.
     default: '(^SHA(256|512)SUMS$|\.(sha256|sha512|sig|asc|pem)$)'
@@ -19,13 +22,13 @@ inputs:
       downloads per value of each group.
     default: ''
   branch:
-    description: Branch that stats.json and history.csv are committed to; it is created on the first run.
+    description: Branch of `stats-repository` that stats.json and history.csv are committed to; it is created on the first run.
     default: download-stats
   publish:
     description: Commit to the branch. Set to 'false' to only count, for example on pull requests.
     default: 'true'
   token:
-    description: "Token that reads the releases and pushes the branch (needs `contents: write` to publish)."
+    description: "Token that reads the releases and pushes the branch (needs `contents: write` on `stats-repository` to publish)."
     default: ${{ github.token }}
 
 outputs:
@@ -43,6 +46,7 @@ runs:
       shell: bash
       env:
         REPOSITORY: ${{ inputs.repository }}
+        STATS_REPOSITORY: ${{ inputs.stats-repository || inputs.repository }}
         GITHUB_TOKEN: ${{ inputs.token }}
         EXCLUDE: ${{ inputs.exclude }}
         GROUP: ${{ inputs.group }}
@@ -53,7 +57,7 @@ runs:
         rm -rf "$dir" && git init -q "$dir" && cd "$dir"
         auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
         git config "http.$GITHUB_SERVER_URL/.extraheader" "$auth"
-        git remote add origin "$GITHUB_SERVER_URL/$REPOSITORY.git"
+        git remote add origin "$GITHUB_SERVER_URL/$STATS_REPOSITORY.git"
         # Only a branch that does not exist yet starts a new history; any
         # other failure stops here, so the history is never replaced.
         status=0

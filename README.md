@@ -52,44 +52,61 @@ jobs:
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `repository` | the current one | Repository whose releases are counted and where the branch is kept. |
+| `repository` | the current one | Repository whose releases are counted. |
+| `stats-repository` | `repository` | Repository that the branch is kept in (see [below](#keeping-the-numbers-in-another-repository)). |
 | `exclude` | checksums and signatures | Regular expression of file names not to count. |
 | `group` | none | Regular expression with named groups. Each group counts the downloads per value it matched (see below). |
-| `branch` | `download-stats` | Branch that the files are committed to. It is created on the first run. |
+| `branch` | `download-stats` | Branch of `stats-repository` that the files are committed to. It is created on the first run. |
 | `publish` | `true` | Set to `false` to only count, for example in pull requests. |
-| `token` | `github.token` | Token that reads the releases and pushes the branch. |
+| `token` | `github.token` | Token that reads the releases and pushes the branch to `stats-repository`. |
 
-Outputs: `total` (for example `519169`) and `total-short` (`519k`). The job summary shows the total and the groups.
+Outputs: `total` (for example `519373`) and `total-short` (`519k`). The job summary shows the total and the groups.
 
 ## Groups
 
-With release files named like `clang-format-22_linux-amd64`,
+The release files of [cpp-linter/clang-tools-static-binaries](https://github.com/cpp-linter/clang-tools-static-binaries/releases) are named like `clang-format-22_linux-amd64`. For them,
 
 ```yaml
       - uses: shenxianpeng/release-download-stats@v1
         with:
-          group: '-(?P<version>\d+)_(?P<platform>[a-z0-9]+-[a-z0-9]+)'
+          group: '-(?P<version>\d+)(?:\.\d+)*_(?P<platform>[a-z0-9]+(?:-[a-z0-9]+)+)'
 ```
 
-adds the downloads per version and per platform to `stats.json`:
+adds the downloads per version and per platform to `stats.json` (shortened to the first two of each):
 
 ```json
 {
-  "repository": "owner/repo",
-  "generated_at": "2026-11-25T05:20:00Z",
-  "total": 519169,
+  "repository": "cpp-linter/clang-tools-static-binaries",
+  "generated_at": "2026-11-26T06:34:53Z",
+  "total": 519373,
   "total_short": "519k",
-  "releases": { "v1.2.0": 2548, "v1.1.0": 879 },
+  "releases": { "master-63858060": 81897, "master-b35c5633": 58066 },
   "groups": {
-    "platform": { "linux-amd64": 272361, "windows-amd64": 151287 },
-    "version": { "22": 92369, "12": 74367 }
+    "platform": { "linux-amd64": 272533, "windows-amd64": 151307 },
+    "version": { "22": 92496, "12": 74373 }
   }
 }
 ```
 
+This repository [counts them every day](.github/workflows/download-stats.yml): the whole file, up to date, is [`stats.json`](https://raw.githubusercontent.com/shenxianpeng/release-download-stats/download-stats/stats.json).
+
+## Keeping the numbers in another repository
+
+By default the branch is kept in the repository whose releases are counted. To count the releases of one repository and keep the numbers in another, for example to collect the numbers of several projects in one place, set `stats-repository`:
+
+```yaml
+      - uses: shenxianpeng/release-download-stats@v1
+        with:
+          repository: OWNER/PROJECT
+          stats-repository: ${{ github.repository }}
+          branch: download-stats-PROJECT
+```
+
+Run it in the workflow of the repository that keeps the numbers: the token of the run can push there and read the releases of any public repository. For a private `repository`, or to push to a repository other than the current one, pass a `token` that may do both.
+
 ## Showing the numbers
 
-The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page. Replace `OWNER/REPO` below with your repository; the branch is `download-stats` unless you changed `branch`.
+The files are on a branch, so they can be read from `raw.githubusercontent.com`, which allows requests from any web page. Replace `OWNER/REPO` below with the repository that keeps the branch (`stats-repository`); the branch is `download-stats` unless you changed `branch`.
 
 ### Badge
 
@@ -97,12 +114,12 @@ A [dynamic JSON badge](https://shields.io/badges/dynamic-json-badge) from shield
 
 | Badge in your README | `query` |
 | --- | --- |
-| ![downloads: 519k](https://img.shields.io/badge/downloads-519k-blue) | `$.total_short` |
-| ![downloads: 519169](https://img.shields.io/badge/downloads-519169-blue) | `$.total` |
-| ![linux-amd64: 272361](https://img.shields.io/badge/linux--amd64-272361-blue) | `$.groups.platform["linux-amd64"]` (one value of a [group](#groups)) |
-| ![downloads: 519k](https://img.shields.io/badge/downloads-519k-blue?style=for-the-badge&logo=github) | `$.total_short`, with `&style=for-the-badge&logo=github` |
+| ![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fshenxianpeng%2Frelease-download-stats%2Fdownload-stats%2Fstats.json&query=%24.total_short&label=downloads) | `$.total_short` |
+| ![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fshenxianpeng%2Frelease-download-stats%2Fdownload-stats%2Fstats.json&query=%24.total&label=downloads) | `$.total` |
+| ![linux-amd64](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fshenxianpeng%2Frelease-download-stats%2Fdownload-stats%2Fstats.json&query=%24.groups.platform%5B%22linux-amd64%22%5D&label=linux-amd64) | `$.groups.platform["linux-amd64"]` (one value of a [group](#groups)) |
+| ![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fshenxianpeng%2Frelease-download-stats%2Fdownload-stats%2Fstats.json&query=%24.total_short&label=downloads&style=for-the-badge&logo=github) | `$.total_short`, with `&style=for-the-badge&logo=github` |
 
-<sub>The numbers above are an example; your badge shows your own.</sub>
+<sub>These badges are live: they show the downloads of [cpp-linter/clang-tools-static-binaries](https://github.com/cpp-linter/clang-tools-static-binaries/releases), which [this repository counts](.github/workflows/download-stats.yml). Yours shows your own.</sub>
 
 The first one, ready to copy:
 
@@ -114,12 +131,11 @@ For another row, change `query` (URL-encoded) and `label`. Every [shields.io sty
 
 ### Chart
 
-`history.csv` has one row per day:
+`history.csv` has one row per day, for example [the one of the badges above](https://raw.githubusercontent.com/shenxianpeng/release-download-stats/download-stats/history.csv):
 
 ```csv
 date,total
-2026-11-24,517802
-2026-11-25,519169
+2026-11-26,519373
 ```
 
 A web page can `fetch()` it, or `stats.json`, and draw a chart with any library. The difference between two rows is the downloads of that day.
